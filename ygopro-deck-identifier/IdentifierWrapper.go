@@ -24,7 +24,7 @@ func GetWrappedIdentifier(name string) *IdentifierWrapper {
 		identifier := new(IdentifierWrapper)
 		identifier.Name = name
 		identifier.prototype = new(astIdentifier)
-		identifier.BindingEnvironment = ygopro_data.GetEnvironment("zh-cn")
+		identifier.BindingEnvironment = ygopro_data.GetEnvironment("zh-CN")
 		GlobalIdentifierMap[name] = identifier
 		return identifier
 	}

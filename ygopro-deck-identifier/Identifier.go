@@ -26,7 +26,7 @@ func NewIdentifier(name string) *Identifier {
 	identifier := new(Identifier)
 	identifier.Name = name
 	identifier.prototype = new(astIdentifier)
-	identifier.BindingEnvironment = ygopro_data.GetEnvironment("zh-cn")
+	identifier.BindingEnvironment = ygopro_data.GetEnvironment("zh-CN")
 	return identifier
 }
 

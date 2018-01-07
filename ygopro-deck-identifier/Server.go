@@ -30,7 +30,7 @@ func StartServer() {
 	})
 	// 预览数据
 	router.POST("/:identifierName/preview", func(context *gin.Context) {
-		buf := make([]byte, 10240)
+		buf := make([]byte, 102400)
 		length, _ := context.Request.Body.Read(buf)
 		buf = buf[0:length]
 		content := string(buf)

@@ -30,10 +30,8 @@ func StartServer() {
 	})
 	// 预览数据
 	router.POST("/:identifierName/preview", func(context *gin.Context) {
-		buf := make([]byte, 102400)
-		length, _ := context.Request.Body.Read(buf)
-		buf = buf[0:length]
-		content := string(buf)
+		bytes, _ := context.GetRawData()
+		content := string(bytes)
 		identifier := context.MustGet("Identifier").(*IdentifierWrapper)
 		_, log := identifier.GetCompilePreview(content, "compile")
 		context.String(200, log)
@@ -115,13 +113,12 @@ func StartServer() {
 		fileApi.PUT("/:fileName", func(context *gin.Context) {
 			identifier := context.MustGet("Identifier").(*IdentifierWrapper)
 			fileName := context.Param("fileName")
-			buf := make([]byte, 10240)
-			length, _ := context.Request.Body.Read(buf)
-			buf = buf[0:length]
-			if content, ok := identifier.SetFile(fileName, string(buf)); ok {
+			bytes, _ := context.GetRawData()
+			content := string(bytes);
+			if response, ok := identifier.SetFile(fileName, content); ok {
 				context.String(200, content)
 			} else {
-				context.String(500, content)
+				context.String(500, response)
 			}
 		})
 	}

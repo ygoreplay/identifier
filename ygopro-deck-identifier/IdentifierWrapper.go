@@ -9,6 +9,7 @@ import (
 	"strings"
 	"bytes"
 	"github.com/op/go-logging"
+	"os/exec"
 )
 
 type IdentifierWrapper struct {
@@ -140,12 +141,39 @@ func (identifier *IdentifierWrapper) SetFile(filename, content string) (string, 
 	}
 }
 
-func (identifier *IdentifierWrapper) Pull() {
-
+func (identifier *IdentifierWrapper) Pull() (string, bool) {
+	command := exec.Command("git", "-C", identifier.GetPath(), "pull", "-f", "origin", "master")
+	if answer, err := command.Output(); err != nil {
+		return err.Error(), false
+	} else {
+		return string(answer), true
+	}
 }
 
-func (identifier *IdentifierWrapper) Push() {
-
+func (identifier *IdentifierWrapper) Push(message string) (string, bool) {
+	command := exec.Command("git", "add", ".")
+	command.Dir = identifier.GetPath()
+	output := ""
+	if answer, err := command.Output(); err != nil {
+		return err.Error(), false
+	} else {
+		output += string(answer)
+	}
+	command = exec.Command("git", "commit", "-a", "-m", message)
+	command.Dir = identifier.GetPath()
+	if answer, err := command.Output(); err != nil {
+		output += "Commit -- " + err.Error() + "\n"
+	} else {
+		output += string(answer)
+	}
+	command = exec.Command("git", "push", "origin", "master")
+	command.Dir = identifier.GetPath()
+	if answer, err := command.Output(); err != nil {
+		return output + "Push -- " + err.Error(), false
+	} else {
+		output += string(answer)
+	}
+	return output, true
 }
 
 func (identifier *IdentifierWrapper) GetRuntimeList() (list map[string]interface{}) {

@@ -105,16 +105,28 @@ func StartServer() {
 			}
 		})
 		fileApi.POST("/pull", func(context *gin.Context) {
-
+			identifier := context.MustGet("Identifier").(*IdentifierWrapper)
+			if content, ok := identifier.Pull(); ok {
+				context.String(200, content)
+			} else {
+				context.String(500, content)
+			}
 		})
 		fileApi.POST("/push", func(context *gin.Context) {
-
+			identifier := context.MustGet("Identifier").(*IdentifierWrapper)
+			bytes, _ := context.GetRawData()
+			message := string(bytes)
+			if content, ok := identifier.Push(message); ok {
+				context.String(200, content)
+			} else {
+				context.String(500, content)
+			}
 		})
 		fileApi.PUT("/:fileName", func(context *gin.Context) {
 			identifier := context.MustGet("Identifier").(*IdentifierWrapper)
 			fileName := context.Param("fileName")
 			bytes, _ := context.GetRawData()
-			content := string(bytes);
+			content := string(bytes)
 			if response, ok := identifier.SetFile(fileName, content); ok {
 				context.String(200, content)
 			} else {
@@ -165,7 +177,7 @@ func extractDeck() gin.HandlerFunc {
 			if len(deck) == 0 {
 				c.AbortWithStatus(400)
 			} else {
-				deck := ygopro_data.LoadYdkFromString(deck);
+				deck := ygopro_data.LoadYdkFromString(deck)
 				deck.Classify()
 				c.Set("Deck", deck)
 			}

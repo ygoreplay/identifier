@@ -124,6 +124,9 @@ func transformSet(node *astNode, nonConvertedSets *map[string]*astNode, converte
 	} else {
 		Logger.Infof(originMessageLoggerHead(node) + " Created user defined Set named %v with %d Cards.", set.Name, len(set.Ids))
 	}
+	if _, ok := (*convertedSets)[node.Value]; ok {
+		Logger.Warningf("Rewriting existing set %v.", node.Value)
+	}
 	(*convertedSets)[node.Value] = set
 	set.Sort()
 	return set

@@ -167,5 +167,7 @@ func Initialize() {
 	logging.SetBackend(NormalLoggingBackend)
 
 	InitializeConfig()
+	ygopro_data.DatabasePath = Config.DatabasePath
+	ygopro_data.InitializeStaticEnvironment()
 	RegisterIdentifiersAccordingToConfig()
 }

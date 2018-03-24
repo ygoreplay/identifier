@@ -1,4 +1,5 @@
 {
+  "DatabasePath": "",
   "DeckDefPath": "./ygopro-deck-identifier/Definitions",
   "UnknownDeck": "迷之卡组",
   "IdentifierNames": ["test", "production", "compile"],

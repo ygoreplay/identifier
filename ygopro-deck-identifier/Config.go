@@ -6,6 +6,7 @@ import (
 )
 
 type Configuration struct {
+	DatabasePath string
 	DeckDefPath string
 	UnknownDeck string
 	IdentifierNames []string

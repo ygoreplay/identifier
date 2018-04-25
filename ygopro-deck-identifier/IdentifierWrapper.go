@@ -14,6 +14,7 @@ import (
 
 type IdentifierWrapper struct {
 	Identifier
+	resetLock chan int
 }
 
 var GlobalIdentifierMap map[string]*IdentifierWrapper = make(map[string]*IdentifierWrapper)
@@ -26,6 +27,7 @@ func GetWrappedIdentifier(name string) *IdentifierWrapper {
 		identifier.Name = name
 		identifier.prototype = new(astIdentifier)
 		identifier.BindingEnvironment = ygopro_data.GetEnvironment("zh-CN")
+		identifier.resetLock = make(chan int, 1)
 		GlobalIdentifierMap[name] = identifier
 		return identifier
 	}
@@ -110,6 +112,9 @@ func (identifier *IdentifierWrapper) GetFile(filename string) (string, bool) {
 
 var ReloadReport bytes.Buffer
 func (identifier *IdentifierWrapper) Reload() (bool, string) {
+	// lock
+	identifier.resetLock <- 1
+
 	// Logger hook
 	ReloadReport.Reset()
 	backend := logging.AddModuleLevel(logging.NewLogBackend(&ReloadReport, "", 0))
@@ -125,6 +130,8 @@ func (identifier *IdentifierWrapper) Reload() (bool, string) {
 
 	// FIXME: Make it graceful.
 	logging.SetBackend(NormalLoggingBackend)
+
+	<- identifier.resetLock
 	return true, ReloadReport.String()
 }
 

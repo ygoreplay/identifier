@@ -77,6 +77,7 @@ func (identifier *Identifier) Recognize(deck ygopro_data.Deck) (*Result) {
 	for _, tag := range tags {
 		result.Tags = append(result.Tags, tag)
 	}
+	result.Deck.RemoveRefusedTags(result)
 	return result
 }
 

@@ -167,6 +167,9 @@ func Initialize() {
 	NormalLoggingBackend = lBackend
 	logging.SetBackend(NormalLoggingBackend)
 
+	environment := ygopro_data.GetEnvironment("zh-CN")
+	environment.LoadAllCards()
+
 	InitializeConfig()
 	ygopro_data.DatabasePath = Config.DatabasePath
 	ygopro_data.InitializeStaticEnvironment()

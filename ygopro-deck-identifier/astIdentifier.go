@@ -273,7 +273,7 @@ func transformCard(value string, environment *ygopro_data.Environment) (ygopro_d
 	if err == nil {
 		return environment.GetCard(id)
 	} else {
-		return environment.GetNamedCard(value)
+		return environment.GetNamedCardCached(value)
 	}
 	return ygopro_data.Card{}, false
 }

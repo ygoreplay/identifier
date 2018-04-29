@@ -6,8 +6,11 @@ import (
 )
 
 func StartServer() {
-	router := gin.Default()
-	//router.Use(gin.Recovery())
+	router := gin.New()
+	router.Use(gin.Recovery())
+	if gin.IsDebugging() {
+		router.Use(gin.Logger())
+	}
 	router.Use(identifierCheck())
 	router.POST("/:identifierName", extractDeck(), func(context *gin.Context) {
 		identifier := context.MustGet("Identifier").(*IdentifierWrapper)

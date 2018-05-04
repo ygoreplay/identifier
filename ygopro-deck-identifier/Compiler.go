@@ -217,8 +217,8 @@ func (compiler *Compiler) guessLineType(linePointer *string) string {
 	} else if match := restrainReg.FindString(line); len(match) > 0 {
 		*linePointer = match
 		return "retrain"
-	} else if match := tagIdentifierReg.FindString(line); len(match) > 0 {
-		*linePointer = match
+	} else if matches := tagIdentifierReg.FindStringSubmatch(line); len(matches) > 0 {
+		*linePointer = matches[1]
 		return "tag"
 	}
 	line = strings.ToLower(line)

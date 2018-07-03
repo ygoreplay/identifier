@@ -39,6 +39,11 @@ func StartServer() {
 		_, log := identifier.GetCompilePreview(content, "compile")
 		context.String(200, log)
 	})
+	router.POST("/:identifierName/verbose", extractDeck(), func(context *gin.Context) {
+		identifier := context.MustGet("Identifier").(*IdentifierWrapper)
+		deck := context.MustGet("Deck").(ygopro_data.Deck)
+		context.JSON(200, identifier.VerboseRecognizeAsJson(deck))
+	})
 
 	// 对运行中的结构，进行读取。
 	runtimeApi := router.Group("/:identifierName/runtime")
@@ -181,6 +186,7 @@ func extractDeck() gin.HandlerFunc {
 				c.AbortWithStatus(400)
 			} else {
 				deck := ygopro_data.LoadYdkFromString(deck)
+				deck.Summary()
 				deck.Classify()
 				c.Set("Deck", deck)
 			}

@@ -42,20 +42,12 @@ func RegisterIdentifiersAccordingToConfig() {
 
 func (identifier *Identifier) RecognizeAsJson(deck ygopro_data.Deck) (json map[string]interface{}) {
 	result := identifier.Recognize(deck)
-	json = make(map[string]interface{})
-	if result == nil {
-		json["deck"] = Config.UnknownDeck
-	} else if len(result.Deck.Name) == 0 {
-		json["deck"] = Config.UnknownDeck
-	} else {
-		json["deck"] = result.Deck.Name
-		tags := make([]string, 0)
-		for _, tag := range result.Tags {
-			tags = append(tags, tag.Name)
-		}
-		json["tag"] = tags
-	}
-	return json
+	return result.ToJson()
+}
+
+func (identifier *Identifier) VerboseRecognizeAsJson(deck ygopro_data.Deck) (json map[string]interface{}) {
+	result := identifier.verboseRecognize(deck)
+	return result.ToJson()
 }
 
 func (identifier *IdentifierWrapper) GetPath() string {

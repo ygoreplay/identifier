@@ -44,7 +44,7 @@ func (deckType Deck) Execute(deck ygopro_data.Deck) (*Result) {
 	}
 }
 
-func (deckType Deck) RemoveRefusedTags(result *Result) {
+func (deckType Deck) RemoveRefusedTags(result *Result) []Tag {
 	if deckType.RefuseHash == nil {
 		deckType.RefuseHash = make(map[string]bool)
 		for _, tag := range deckType.RefuseTags {
@@ -52,12 +52,16 @@ func (deckType Deck) RemoveRefusedTags(result *Result) {
 		}
 	}
 	newTags := make([]Tag, 0)
+	refusedTags := make([]Tag, 0)
 	for _, tag := range result.Tags {
 		if _, ok := deckType.RefuseHash[tag.Name]; !ok {
 			newTags = append(newTags, tag)
+		} else {
+			refusedTags = append(refusedTags, tag)
 		}
 	}
 	result.Tags = newTags
+	return refusedTags
 }
 
 type DeckSort []Deck

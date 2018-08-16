@@ -127,6 +127,19 @@ func (identifier *IdentifierWrapper) Reload() (bool, string) {
 	return true, ReloadReport.String()
 }
 
+func ReloadAllIdentifier() (bool, string) {
+	// Due the reload() in identifier is locked, this function needed another lock.
+	ok := true
+	var log bytes.Buffer
+	for _, identifier := range GlobalIdentifierMap {
+		identifierOk, identifierLog := identifier.Reload()
+		ok = ok && identifierOk
+		log.WriteString(identifierLog)
+		log.WriteByte('\n')
+	}
+	return ok, log.String()
+}
+
 func (identifier *IdentifierWrapper) SetFile(filename, content string) (string, bool) {
 	if !identifier.CheckPathExist() {
 		return "Identifier path doesn't exist.", false

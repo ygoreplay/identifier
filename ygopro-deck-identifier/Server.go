@@ -13,11 +13,12 @@ func StartServer() {
 	}
 
 	// pull the database and reset the world.
+	/*
 	router.POST("/reload", accessCheck(), func(context *gin.Context) {
 		ygopro_data.LoadAllEnvironmentCards()
 		_, text := ReloadAllIdentifier()
 		context.String(200, text)
-	})
+	})*/
 
 	router.Use(identifierCheck())
 	router.POST("/:identifierName", extractDeck(), func(context *gin.Context) {

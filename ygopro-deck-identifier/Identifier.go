@@ -101,7 +101,7 @@ func (identifier *Identifier) recognizeTags(deck ygopro_data.Deck) ([]Tag) {
 }
 
 func (identifier *Identifier) polymerize(tags []Tag) *Result {
-	sort.Reverse(TagSort(tags))
+	sort.Sort(sort.Reverse(TagSort(tags)))
 	upgradeTags := make([]Tag, 0)
 	normalTags := make([]Tag, 0)
 	for _, tag := range tags {

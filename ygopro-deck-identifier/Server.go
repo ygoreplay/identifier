@@ -14,11 +14,11 @@ func StartServer() {
 
 	// pull the database and reset the world.
 	/*
-	router.POST("/reload", accessCheck(), func(context *gin.Context) {
-		ygopro_data.LoadAllEnvironmentCards()
-		_, text := ReloadAllIdentifier()
-		context.String(200, text)
-	})*/
+		router.POST("/reload", accessCheck(), func(context *gin.Context) {
+			ygopro_data.LoadAllEnvironmentCards()
+			_, text := ReloadAllIdentifier()
+			context.String(200, text)
+		})*/
 
 	router.Use(identifierCheck())
 	router.POST("/:identifierName", extractDeck(), func(context *gin.Context) {
@@ -77,7 +77,7 @@ func StartServer() {
 			if result, ok := identifier.GetRuntimeStructure("deck", deckName); ok {
 				context.JSON(200, result)
 			} else {
-				context.AbortWithStatusJSON(404, "Can't find deck named " + deckName)
+				context.AbortWithStatusJSON(404, "Can't find deck named "+deckName)
 			}
 		})
 		runtimeApi.GET("/tag/:tagName", func(context *gin.Context) {
@@ -86,7 +86,7 @@ func StartServer() {
 			if result, ok := identifier.GetRuntimeStructure("tag", tagName); ok {
 				context.JSON(200, result)
 			} else {
-				context.AbortWithStatusJSON(404, "Can't find deck named " + tagName)
+				context.AbortWithStatusJSON(404, "Can't find deck named "+tagName)
 			}
 		})
 		runtimeApi.GET("/set/:setName", func(context *gin.Context) {
@@ -95,7 +95,7 @@ func StartServer() {
 			if result, ok := identifier.GetRuntimeStructure("set", setName); ok {
 				context.JSON(200, result)
 			} else {
-				context.AbortWithStatusJSON(404, "Can't find set named " + setName)
+				context.AbortWithStatusJSON(404, "Can't find set named "+setName)
 			}
 		})
 	}
@@ -166,7 +166,7 @@ func identifierCheck() gin.HandlerFunc {
 			c.Set("Identifier", identifier)
 			c.Next()
 		} else {
-			c.AbortWithStatusJSON(404, "Can't find Identifier named " + identifierName)
+			c.AbortWithStatusJSON(404, "Can't find Identifier named "+identifierName)
 		}
 
 	}
@@ -188,19 +188,32 @@ func accessCheck() gin.HandlerFunc {
 
 func extractDeck() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		deck := c.Query("deck")
-		if len(deck) == 0 {
-			deck = c.PostForm("deck")
-			if len(deck) == 0 {
-				c.AbortWithStatus(400)
-			} else {
-				deck := ygopro_data.LoadYdkFromString(deck)
-				deck.Summary()
-				deck.Classify()
-				c.Set("Deck", deck)
-			}
-		} else {
-			c.AbortWithStatus(501)
+		deck := c.PostForm("deck")
+		if len(deck) > 0 {
+			setDeck(c, deck)
+			return
+		}
+		deck = c.Query("deck")
+		if len(deck) > 0 {
+			setDeck(c, deck)
+			return
+		}
+		if gin.Mode() == gin.DebugMode {
+			buf := make([]byte, 10240)
+			num, _ := c.Request.Body.Read(buf)
+			deck := string(buf[0:num])
+			setDeck(c, deck)
+			return
 		}
 	}
+}
+
+func setDeck(c *gin.Context, deckString string) {
+	deck := ygopro_data.LoadYdkFromString(deckString)
+	deck.Summary()
+	deck.Classify()
+	if gin.Mode() == gin.DebugMode {
+		deck.SeparateExFromMain(ygopro_data.GetEnvironment("zh-CN"))
+	}
+	c.Set("Deck", deck)
 }

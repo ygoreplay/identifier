@@ -199,6 +199,7 @@ func (result *VerboseResult) ToJson() map[string]interface{} {
 	json["verboseDecks"] = verboseDecks
 	json["verboseCheckTags"] = verboseCheckTags
 	json["verboseGlobalTags"] = verboseGlobalTags
+	json["polymerizedTags"] = result.polymerizedTags
 
 	forcedTags := make([]string, 0)
 	removedTags := make([]string, 0)

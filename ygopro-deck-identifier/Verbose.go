@@ -1,6 +1,10 @@
 package ygopro_deck_identifier
 
-import "github.com/iamipanda/ygopro-data"
+import (
+	"bytes"
+	"github.com/iamipanda/ygopro-data"
+	"sort"
+)
 
 type VerboseRestrain interface {
 	verboseJudge(deck *ygopro_data.Deck) VerboseRestrainAnswer
@@ -32,6 +36,7 @@ type VerboseResult struct {
 	verboseGlobalTags []VerboseTagAnswer
 	forcedTags        []Tag
 	removedTags       []Tag
+	polymerizedTags   []string
 }
 
 func (restrain CardRestrain) verboseJudge(deck *ygopro_data.Deck) VerboseRestrainAnswer {
@@ -112,7 +117,7 @@ func (identifier *Identifier) verboseRecognize(deck ygopro_data.Deck) *VerboseRe
 	tags, answers := identifier.verboseRecognizeTags(&deck)
 	result.verboseGlobalTags = answers
 	if result.Result == nil {
-		return result // POLY
+		return identifier.verbosePolymerizeTags(result, tags)
 	}
 	for _, tag := range tags {
 		result.Tags = append(result.Tags, tag)
@@ -150,7 +155,7 @@ func (identifier *Identifier) verboseRecognizeDeck(deck *ygopro_data.Deck) *Verb
 		}
 		forceTags = correctDeckType.ForceTags
 	}
-	return &VerboseResult{result, answers, verboseCheckTags, nil, forceTags, nil}
+	return &VerboseResult{result, answers, verboseCheckTags, nil, forceTags, nil, nil}
 }
 
 func (identifier *Identifier) verboseRecognizeTags(deck *ygopro_data.Deck) ([]Tag, []VerboseTagAnswer) {
@@ -164,4 +169,32 @@ func (identifier *Identifier) verboseRecognizeTags(deck *ygopro_data.Deck) ([]Ta
 		answers = append(answers, answer)
 	}
 	return tags, answers
+}
+
+func (identifier *Identifier) verbosePolymerizeTags(answer *VerboseResult, tags []Tag) *VerboseResult {
+	sort.Sort(sort.Reverse(TagSort(tags)))
+	upgradeTags := make([]Tag, 0)
+	normalTags := make([]Tag, 0)
+	for _, tag := range tags {
+		if tag.Is("upgrade") {
+			upgradeTags = append(upgradeTags, tag)
+		} else {
+			normalTags = append(normalTags, tag)
+		}
+	}
+	if len(upgradeTags) == 0 {
+		return nil
+	}
+	answer.polymerizedTags = make([]string, 0)
+	var buffer bytes.Buffer
+	for _, tag := range upgradeTags {
+		buffer.WriteString(tag.Name)
+		answer.polymerizedTags = append(answer.polymerizedTags, tag.Name)
+	}
+	result := new(Result)
+	result.Deck = Deck {}
+	result.Deck.Name = buffer.String()
+	result.Tags = normalTags
+	answer.Result = result
+	return answer
 }

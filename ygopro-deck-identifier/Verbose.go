@@ -183,7 +183,7 @@ func (identifier *Identifier) verbosePolymerizeTags(answer *VerboseResult, tags 
 		}
 	}
 	if len(upgradeTags) == 0 {
-		return nil
+		return answer
 	}
 	answer.polymerizedTags = make([]string, 0)
 	var buffer bytes.Buffer

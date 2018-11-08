@@ -211,9 +211,9 @@ func extractDeck() gin.HandlerFunc {
 func setDeck(c *gin.Context, deckString string) {
 	deck := ygopro_data.LoadYdkFromString(deckString)
 	deck.Summary()
-	deck.Classify()
 	if gin.Mode() == gin.DebugMode {
 		deck.SeparateExFromMain(ygopro_data.GetEnvironment("zh-CN"))
 	}
+	deck.Classify()
 	c.Set("Deck", deck)
 }

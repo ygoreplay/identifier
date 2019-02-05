@@ -47,7 +47,7 @@ func (identifier *astIdentifier) prepare(target *Identifier, backup *Identifier)
 	// 转换 Decks 序列（包含检索空 Tag 序列）
 	identifier.prepareDecks(target, backup)
 	// 排序
-	sort.Reverse(DeckSort(target.Decks))
+	sort.Sort(sort.Reverse(DeckSort(target.Decks)))
 	return target
 }
 

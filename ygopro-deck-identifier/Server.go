@@ -12,6 +12,14 @@ func StartServer() {
 		router.Use(gin.Logger())
 	}
 
+	// pull the database and reset the world.
+	router.PATCH("/reload", accessCheck(), func(context *gin.Context) {
+		Logger.Info("Reloading database.")
+		ygopro_data.LoadAllEnvironmentCards()
+		_, text := ReloadAllIdentifier()
+		context.String(200, text)
+	})
+
 	router.Use(identifierCheck())
 	router.POST("/:identifierName", extractDeck(), func(context *gin.Context) {
 		identifier := context.MustGet("Identifier").(*IdentifierWrapper)
@@ -27,13 +35,6 @@ func StartServer() {
 	// 以下的操作，全部需要 Access Key 操作。
 	router.Use(accessCheck())
 
-	// pull the database and reset the world.
-	router.PATCH("/reload", func(context *gin.Context) {
-		Logger.Info("Reloading database.")
-		ygopro_data.LoadAllEnvironmentCards()
-		_, text := ReloadAllIdentifier()
-		context.String(200, text)
-	})
 	// 重读数据
 	router.POST("/:identifierName/reload", func(context *gin.Context) {
 		identifier := context.MustGet("Identifier").(*IdentifierWrapper)

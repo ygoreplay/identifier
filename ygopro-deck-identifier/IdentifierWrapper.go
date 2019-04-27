@@ -42,7 +42,9 @@ func RegisterIdentifiersAccordingToConfig() {
 
 func (identifier *Identifier) RecognizeAsJson(deck ygopro_data.Deck) (json map[string]interface{}) {
 	result := identifier.Recognize(deck)
-	result.processAffixAndGetName(true)
+	if result != nil {
+		result.processAffixAndGetName(true)
+	}
 	return result.ToJson()
 }
 

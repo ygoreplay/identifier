@@ -5,7 +5,7 @@ type Result struct {
 	Tags []Tag
 }
 
-func (result Result) processAffixAndGetName(save bool) (name string) {
+func (result *Result) processAffixAndGetName(save bool) (name string) {
 	name = result.Deck.Name
 	newTags := make([]Tag, len(result.Tags));
 	for _, tag := range result.Tags {

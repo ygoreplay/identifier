@@ -2,7 +2,7 @@ package ygopro_deck_identifier
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/iamipanda/ygopro-data"
+	ygopro_data "github.com/iamipanda/ygopro-data"
 )
 
 func StartServer() {
@@ -189,30 +189,32 @@ func accessCheck() gin.HandlerFunc {
 
 func extractDeck() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		separate_string := c.DefaultQuery("separate", "false")
+		separate := separate_string == "true"
 		deck := c.PostForm("deck")
 		if len(deck) > 0 {
-			setDeck(c, deck)
+			setDeck(c, deck, separate)
 			return
 		}
 		deck = c.Query("deck")
 		if len(deck) > 0 {
-			setDeck(c, deck)
+			setDeck(c, deck, separate)
 			return
 		}
 		if gin.Mode() == gin.DebugMode {
 			buf := make([]byte, 10240)
 			num, _ := c.Request.Body.Read(buf)
 			deck := string(buf[0:num])
-			setDeck(c, deck)
+			setDeck(c, deck, separate)
 			return
 		}
 	}
 }
 
-func setDeck(c *gin.Context, deckString string) {
+func setDeck(c *gin.Context, deckString string, separate bool) {
 	deck := ygopro_data.LoadYdkFromString(deckString)
 	deck.Summary()
-	if gin.Mode() == gin.DebugMode {
+	if separate || gin.Mode() == gin.DebugMode {
 		deck.SeparateExFromMain(ygopro_data.GetEnvironment("zh-CN"))
 	}
 	deck.Classify()

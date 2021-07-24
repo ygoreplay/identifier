@@ -371,8 +371,9 @@ func (compiler *Compiler) parseTokensInLevel(nodes []*astNode, level int, index 
 		operator_map := map[int][]string{2: []string{"&&", "and"}, 3: []string{"||", "or"}}
 		operators := operator_map[level]
 		node := newAstNode("restrain", operators[1])
+		leftNode := compiler.parseTokensInLevel(nodes, level-1, index)
 		node.Children = make([]*astNode, 0)
-		node.Children = append(node.Children, compiler.parseTokensInLevel(nodes, level-1, index))
+		node.Children = append(node.Children, leftNode)
 		for *index < len(nodes) {
 			current = nodes[*index]
 			goahead := false
@@ -387,7 +388,11 @@ func (compiler *Compiler) parseTokensInLevel(nodes []*astNode, level int, index 
 				break
 			}
 		}
-		return node
+		if len(node.Children) == 1 {
+			return leftNode
+		} else {
+			return node
+		}
 	}
 }
 

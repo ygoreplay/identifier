@@ -3,10 +3,10 @@ package ygopro_deck_identifier
 import (
 	"bufio"
 	"os"
-	"regexp"
-	"strings"
 	"path"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
 const COMPILER_COMMENT_CHARACTER = "#"
@@ -19,7 +19,8 @@ var spaceReg, _ = regexp.Compile(`^(\s+)`)
 var setIdentifierReg, _ = regexp.Compile(`\[(.+?)]`)
 var tagIdentifierReg, _ = regexp.Compile(`\((.+?)\)`)
 var priorityIdentifierReg, _ = regexp.Compile(`\[(\d+?)]`)
-var restrainReg, _ = regexp.Compile(`(.+?)(\s+?)(main|side|ex|ori|all)?(\s*?)(>|<|=)(=*)(\s*?)(\d+)`)
+var operatorReg, _ = regexp.Compile(`^\s*(\(|\)|&&|\|\||and|or|not)`)
+var restrainReg, _ = regexp.Compile(`^(.+?)(\s+?)(main|side|ex|ori|all)?(\s*?)(>|<|=)(=*)(\s*?)(\d+)`)
 var tabSpaceString = strings.Repeat(" ", COMPILER_TAB_SPACE_LENGTH)
 
 type Compiler struct {
@@ -37,7 +38,7 @@ type originMessage struct {
 type astNode struct {
 	Type     string
 	Value    string
-	Origin *originMessage
+	Origin   *originMessage
 	Children []*astNode
 }
 
@@ -179,7 +180,8 @@ func (compiler *Compiler) compileLineContent(line string, message *originMessage
 			node = compiler.generateRestrainNode(line, "set")
 		}
 	case "restrain", COMPILER_RESTRAIN_IDENTIFIER:
-		node = compiler.generateRestrainNode(line, "")
+		node = compiler.parseTokens(compiler.generateTokens(line))
+		node.setOrigin(message)
 	case "set card":
 		node = newAstNode("set card", strings.TrimSpace(line))
 	case "inner set":
@@ -317,5 +319,83 @@ func (compiler *Compiler) guessRestrainType(targetName *string) string {
 	} else {
 		*targetName = matches[1]
 		return "set"
+	}
+}
+
+func (compiler *Compiler) generateTokens(line string) []*astNode {
+	nodes := make([]*astNode, 0)
+	for len(line) > 0 {
+		if match := operatorReg.FindString(line); len(match) > 0 {
+			nodes = append(nodes, newAstNode("operator", strings.TrimSpace(match)))
+			line = line[len(match):]
+		} else if match = restrainReg.FindString(line); len(match) > 0 {
+			nodes = append(nodes, compiler.generateRestrainNode(match, ""))
+			line = line[len(match):]
+		} else {
+			line = line[1:]
+		}
+	}
+	return nodes
+}
+
+func (compiler *Compiler) parseTokens(nodes []*astNode) *astNode {
+	index := 0
+	return compiler.parseTokensInLevel(nodes, 3, &index)
+}
+
+func (compiler *Compiler) parseTokensInLevel(nodes []*astNode, level int, index *int) *astNode {
+	current := nodes[*index]
+	if level == -1 {
+		*index += 1
+		return current
+	} else if level == 0 {
+		if current.Value == "(" && current.Type == "operator" {
+			*index += 1
+			node := compiler.parseTokensInLevel(nodes, 3, index)
+			*index += 1
+			return node
+		} else {
+			return compiler.parseTokensInLevel(nodes, -1, index)
+		}
+	} else if level == 1 {
+		if current.Value == "not" && current.Type == "operator" {
+			*index += 1
+			node := newAstNode("restrain", "not")
+			node.Children = make([]*astNode, 0)
+			node.Children = append(node.Children, compiler.parseTokensInLevel(nodes, 0, index))
+			return node
+		} else {
+			return compiler.parseTokensInLevel(nodes, 0, index)
+		}
+	} else {
+		operator_map := map[int][]string{2: []string{"&&", "and"}, 3: []string{"||", "or"}}
+		operators := operator_map[level]
+		node := newAstNode("restrain", operators[1])
+		node.Children = make([]*astNode, 0)
+		node.Children = append(node.Children, compiler.parseTokensInLevel(nodes, level-1, index))
+		for *index < len(nodes) {
+			current = nodes[*index]
+			goahead := false
+			for _, op := range operators {
+				if current.Value == op {
+					*index += 1
+					node.Children = append(node.Children, compiler.parseTokensInLevel(nodes, level-1, index))
+					goahead = true
+				}
+			}
+			if !goahead {
+				break
+			}
+		}
+		return node
+	}
+}
+
+func (node *astNode) setOrigin(message *originMessage) {
+	node.Origin = message
+	if node.Children != nil {
+		for _, child := range node.Children {
+			child.setOrigin(message)
+		}
 	}
 }

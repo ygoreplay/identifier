@@ -17,7 +17,7 @@ func (deckType *Deck) ToJson() (json map[string]interface{}) {
 	for _, tag := range deckType.CheckTags {
 		checkTags = append(checkTags, tag.ToJson())
 	}
-	for _,tag := range deckType.ForceTags {
+	for _, tag := range deckType.ForceTags {
 		forceTags = append(forceTags, tag.ToJson())
 	}
 	for _, tag := range deckType.RefuseTags {
@@ -144,7 +144,7 @@ func (result *Result) ToJson() map[string]interface{} {
 // =========================
 
 // VerboseDeckAnswer#ToJson will remove the deck details, only return the name.
-func (answer *VerboseDeckAnswer) ToJson() (map[string]interface{}) {
+func (answer *VerboseDeckAnswer) ToJson() map[string]interface{} {
 	json := make(map[string]interface{})
 	json["deck"] = answer.deck.Name
 	json["is"] = answer.is
@@ -157,7 +157,7 @@ func (answer *VerboseDeckAnswer) ToJson() (map[string]interface{}) {
 }
 
 // VerboseTagAnswer#ToJson will remove the tag details, only return the name.
-func (answer *VerboseTagAnswer) ToJson() (map[string]interface{}) {
+func (answer *VerboseTagAnswer) ToJson() map[string]interface{} {
 	json := make(map[string]interface{})
 	json["tag"] = answer.tag.Name
 	json["is"] = answer.is
@@ -169,7 +169,7 @@ func (answer *VerboseTagAnswer) ToJson() (map[string]interface{}) {
 	return json
 }
 
-func (answer *VerboseRestrainAnswer) ToJson() (map[string]interface{}) {
+func (answer *VerboseRestrainAnswer) ToJson() map[string]interface{} {
 	json := answer.restrain.ToJson()
 	json["value"] = answer.value
 	json["is"] = answer.is

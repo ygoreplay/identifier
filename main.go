@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./ygopro-deck-identifier"
+	"identifier/ygopro-deck-identifier"
 )
 
 func main() {

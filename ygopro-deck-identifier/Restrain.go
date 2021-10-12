@@ -52,8 +52,8 @@ func GetDeckTargetClassifiedRange(deck *ygopro_data.Deck, targetRange string) *m
 // Restrain On Cards
 // ======================
 type CardRestrain struct {
-	Id int
-	Range string
+	Id        int
+	Range     string
 	Condition Condition
 }
 
@@ -71,8 +71,8 @@ func (restrain CardRestrain) Judge(deck *ygopro_data.Deck) bool {
 // Restrain On Sets
 // ======================
 type SetRestrain struct {
-	Set ygopro_data.Set
-	Range string
+	Set       ygopro_data.Set
+	Range     string
 	Condition Condition
 }
 

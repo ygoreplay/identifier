@@ -3,6 +3,6 @@
   "DeckDefPath": "./ygopro-deck-identifier/Definitions",
   "UnknownDeck": "迷之卡组",
   "IdentifierNames": ["test", "production", "compile"],
-  "Listening": ":8080",
+  "Listening": ":3003",
   "AccessKey": "123456"
 }

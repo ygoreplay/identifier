@@ -1,15 +1,15 @@
 package ygopro_deck_identifier
 
 import (
+	"bytes"
 	"github.com/iamipanda/ygopro-data"
+	"github.com/op/go-logging"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
-	"bytes"
-	"github.com/op/go-logging"
-	"os/exec"
 )
 
 type IdentifierWrapper struct {
@@ -106,6 +106,7 @@ func (identifier *IdentifierWrapper) GetFile(filename string) (string, bool) {
 }
 
 var ReloadReport bytes.Buffer
+
 func (identifier *IdentifierWrapper) Reload() (bool, string) {
 	// lock
 	identifier.resetLock <- 1
@@ -126,7 +127,7 @@ func (identifier *IdentifierWrapper) Reload() (bool, string) {
 	// FIXME: Make it graceful.
 	logging.SetBackend(NormalLoggingBackend)
 
-	<- identifier.resetLock
+	<-identifier.resetLock
 	return true, ReloadReport.String()
 }
 

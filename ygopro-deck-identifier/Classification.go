@@ -23,10 +23,10 @@ func (classification Classification) Judge(deck ygopro_data.Deck) bool {
 type Deck struct {
 	Classification
 	CheckTags, ForceTags, RefuseTags []Tag
-	RefuseHash map[string]bool
+	RefuseHash                       map[string]bool
 }
 
-func (deckType Deck) Execute(deck ygopro_data.Deck) (*Result) {
+func (deckType Deck) Execute(deck ygopro_data.Deck) *Result {
 	if deckType.Judge(deck) {
 		result := new(Result)
 		result.Deck = deckType
@@ -65,17 +65,18 @@ func (deckType Deck) RemoveRefusedTags(result *Result) []Tag {
 }
 
 type DeckSort []Deck
-func (sort DeckSort) Len() int { return len(sort) }
+
+func (sort DeckSort) Len() int           { return len(sort) }
 func (sort DeckSort) Less(i, j int) bool { return sort[i].Priority < sort[j].Priority }
-func (sort DeckSort) Swap(i, j int) { sort[i], sort[j] = sort[j], sort[i] }
+func (sort DeckSort) Swap(i, j int)      { sort[i], sort[j] = sort[j], sort[i] }
 
 type Tag struct {
 	Classification
-	Configs []string
+	Configs     []string
 	ConfigCache map[string]bool
 }
 
-func (tag Tag) Is(config string) (bool) {
+func (tag Tag) Is(config string) bool {
 	if tag.ConfigCache == nil {
 		tag.ConfigCache = make(map[string]bool)
 	}
@@ -95,6 +96,7 @@ func (tag Tag) Is(config string) (bool) {
 }
 
 type TagSort []Tag
-func (sort TagSort) Len() int { return len(sort) }
+
+func (sort TagSort) Len() int           { return len(sort) }
 func (sort TagSort) Less(i, j int) bool { return sort[i].Priority < sort[j].Priority }
-func (sort TagSort) Swap(i, j int) { sort[i], sort[j] = sort[j], sort[i] }
+func (sort TagSort) Swap(i, j int)      { sort[i], sort[j] = sort[j], sort[i] }

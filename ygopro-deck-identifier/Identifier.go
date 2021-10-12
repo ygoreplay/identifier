@@ -1,25 +1,25 @@
 package ygopro_deck_identifier
 
 import (
-	"github.com/iamipanda/ygopro-data"
-	"path/filepath"
-	"os"
-	"strings"
-	"github.com/op/go-logging"
-	"sort"
 	"bytes"
+	"github.com/iamipanda/ygopro-data"
+	"github.com/op/go-logging"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
 )
 
 type Identifier struct {
-	Name string
-	Decks []Deck
-	Tags []Tag
+	Name       string
+	Decks      []Deck
+	Tags       []Tag
 	GlobalTags []Tag
 	CustomSets []ygopro_data.Set
 
-	prototype *astIdentifier
+	prototype          *astIdentifier
 	BindingEnvironment *ygopro_data.Environment
-	SetNameHash map[string]ygopro_data.Set
+	SetNameHash        map[string]ygopro_data.Set
 }
 
 func NewIdentifier(name string) *Identifier {
@@ -65,7 +65,7 @@ func (identifier *Identifier) clear() {
 	identifier.SetNameHash = make(map[string]ygopro_data.Set)
 }
 
-func (identifier *Identifier) Recognize(deck ygopro_data.Deck) (*Result) {
+func (identifier *Identifier) Recognize(deck ygopro_data.Deck) *Result {
 	result := identifier.recognizeDeck(deck)
 	tags := identifier.recognizeTags(deck)
 	if result == nil {
@@ -81,7 +81,7 @@ func (identifier *Identifier) Recognize(deck ygopro_data.Deck) (*Result) {
 	return result
 }
 
-func (identifier *Identifier) recognizeDeck(deck ygopro_data.Deck) (*Result) {
+func (identifier *Identifier) recognizeDeck(deck ygopro_data.Deck) *Result {
 	for _, deckType := range identifier.Decks {
 		if result := deckType.Execute(deck); result != nil {
 			return result
@@ -90,7 +90,7 @@ func (identifier *Identifier) recognizeDeck(deck ygopro_data.Deck) (*Result) {
 	return nil
 }
 
-func (identifier *Identifier) recognizeTags(deck ygopro_data.Deck) ([]Tag) {
+func (identifier *Identifier) recognizeTags(deck ygopro_data.Deck) []Tag {
 	answer := make([]Tag, 0)
 	for _, tag := range identifier.GlobalTags {
 		if tag.Judge(deck) {
@@ -119,7 +119,7 @@ func (identifier *Identifier) polymerize(tags []Tag) *Result {
 		buffer.WriteString(tag.Name)
 	}
 	result := new(Result)
-	result.Deck = Deck {}
+	result.Deck = Deck{}
 	result.Deck.Name = buffer.String()
 	result.Tags = normalTags
 	return result

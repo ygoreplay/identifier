@@ -2,9 +2,9 @@ package ygopro_deck_identifier
 
 import (
 	"github.com/iamipanda/ygopro-data"
+	"path"
 	"sort"
 	"strconv"
-	"path"
 )
 
 type astIdentifier struct {
@@ -120,9 +120,9 @@ func transformSet(node *astNode, nonConvertedSets *map[string]*astNode, converte
 		}
 	}
 	if len(set.Ids) == 0 {
-		Logger.Warningf(originMessageLoggerHead(node) + " Created an empty user defined Set named %v", set.Name)
+		Logger.Warningf(originMessageLoggerHead(node)+" Created an empty user defined Set named %v", set.Name)
 	} else {
-		Logger.Infof(originMessageLoggerHead(node) + " Created user defined Set named %v with %d Cards.", set.Name, len(set.Ids))
+		Logger.Infof(originMessageLoggerHead(node)+" Created user defined Set named %v with %d Cards.", set.Name, len(set.Ids))
 	}
 	if _, ok := (*convertedSets)[node.Value]; ok {
 		Logger.Warningf("Rewriting existing set %v.", node.Value)

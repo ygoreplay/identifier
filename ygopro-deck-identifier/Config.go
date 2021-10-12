@@ -1,17 +1,17 @@
 package ygopro_deck_identifier
 
 import (
-	"os"
 	"encoding/json"
+	"os"
 )
 
 type Configuration struct {
-	DatabasePath string
-	DeckDefPath string
-	UnknownDeck string
+	DatabasePath    string
+	DeckDefPath     string
+	UnknownDeck     string
 	IdentifierNames []string
-	Listening string
-	AccessKey string
+	Listening       string
+	AccessKey       string
 }
 
 var Config Configuration

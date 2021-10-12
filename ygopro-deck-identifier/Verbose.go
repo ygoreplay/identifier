@@ -192,7 +192,7 @@ func (identifier *Identifier) verbosePolymerizeTags(answer *VerboseResult, tags 
 		answer.polymerizedTags = append(answer.polymerizedTags, tag.Name)
 	}
 	result := new(Result)
-	result.Deck = Deck {}
+	result.Deck = Deck{}
 	result.Deck.Name = buffer.String()
 	result.Tags = normalTags
 	answer.Result = result

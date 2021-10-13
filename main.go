@@ -139,15 +139,15 @@ func doUpdate(owner string, repo string, saveDir string, fileFilter func(path st
 func main() {
 	ygopro_data.LuaPath = filepath.Join(os.Getenv("GOPATH"), "pkg/mod/github.com/iamipanda/ygopro-data@v0.0.0-20190116110429-360968dc5c66/Constant.lua")
 
-	if checkIfUpdatable("mycard", "ygopro-database", "./zh-CN") {
+	if checkIfUpdatable(os.Getenv("DATABASE_OWNER"), os.Getenv("DATABASE_REPO"), "./zh-CN") {
 		doUpdate("mycard", "ygopro-database", "./zh-CN", func(path string) bool {
 			return strings.HasPrefix(path, "locales/zh-CN/")
 		})
 	}
 
-	if checkIfUpdatable("mycard", "ygoruby-analytics-deck-definitions", "./ygopro-deck-identifier/Definitions/production") {
+	if checkIfUpdatable(os.Getenv("DEFINITION_OWNER"), os.Getenv("DEFINITION_REPO"), "./ygopro-deck-identifier/Definitions/production") {
 		doUpdate("mycard", "ygoruby-analytics-deck-definitions", "./ygopro-deck-identifier/Definitions/production", func(path string) bool {
-			return true
+			return strings.HasSuffix(path, ".deckdef")
 		})
 	}
 

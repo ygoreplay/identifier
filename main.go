@@ -5,6 +5,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/memory"
+	ygopro_data "github.com/iamipanda/ygopro-data"
 	ygopro_deck_identifier "identifier/ygopro-deck-identifier"
 	"io/ioutil"
 	"os"
@@ -136,6 +137,8 @@ func doUpdate(owner string, repo string, saveDir string, fileFilter func(path st
 }
 
 func main() {
+	ygopro_data.LuaPath = filepath.Join(os.Getenv("GOPATH"), "pkg/mod/github.com/iamipanda/ygopro-data@v0.0.0-20190116110429-360968dc5c66/Constant.lua")
+
 	if checkIfUpdatable("mycard", "ygopro-database", "./zh-CN") {
 		doUpdate("mycard", "ygopro-database", "./zh-CN", func(path string) bool {
 			return strings.HasPrefix(path, "locales/zh-CN/")

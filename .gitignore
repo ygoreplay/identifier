@@ -17,3 +17,6 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+/zh-CN
+/ygopro-deck-identifier/Definitions/production/*.deckdef
+/ygopro-deck-identifier/Definitions/production/.last-commit

@@ -139,14 +139,18 @@ func doUpdate(owner string, repo string, saveDir string, fileFilter func(path st
 func main() {
 	ygopro_data.LuaPath = filepath.Join(os.Getenv("GOPATH"), "pkg/mod/github.com/iamipanda/ygopro-data@v0.0.0-20190116110429-360968dc5c66/Constant.lua")
 
-	if checkIfUpdatable(os.Getenv("DATABASE_OWNER"), os.Getenv("DATABASE_REPO"), "./zh-CN") {
-		doUpdate("mycard", "ygopro-database", "./zh-CN", func(path string) bool {
+	dbOwner := os.Getenv("DATABASE_OWNER")
+	dbRepo := os.Getenv("DATABASE_REPO")
+	if checkIfUpdatable(dbOwner, dbRepo, "./zh-CN") {
+		doUpdate(dbOwner, dbRepo, "./zh-CN", func(path string) bool {
 			return strings.HasPrefix(path, "locales/zh-CN/")
 		})
 	}
 
-	if checkIfUpdatable(os.Getenv("DEFINITION_OWNER"), os.Getenv("DEFINITION_REPO"), "./ygopro-deck-identifier/Definitions/production") {
-		doUpdate("mycard", "ygoruby-analytics-deck-definitions", "./ygopro-deck-identifier/Definitions/production", func(path string) bool {
+	defOwner := os.Getenv("DEFINITION_OWNER")
+	defRepo := os.Getenv("DEFINITION_REPO")
+	if checkIfUpdatable(defOwner, defRepo, "./ygopro-deck-identifier/Definitions/production") {
+		doUpdate(defOwner, defRepo, "./ygopro-deck-identifier/Definitions/production", func(path string) bool {
 			return strings.HasSuffix(path, ".deckdef")
 		})
 	}

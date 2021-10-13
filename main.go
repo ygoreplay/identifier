@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/memory"
 	ygopro_data "github.com/iamipanda/ygopro-data"
@@ -36,7 +38,7 @@ func getSavedCommitId(saveDir string) (string, error) {
 	return string(buffer), nil
 }
 
-func getLastCommitIdOfRepository(owner string, repo string) string {
+func getLastCommitIdOfRepository(owner string, repo string, branch string) string {
 	repoDir := filepath.Join(os.TempDir(), owner+"-"+repo)
 	err := os.RemoveAll(repoDir)
 	if err != nil {
@@ -44,8 +46,10 @@ func getLastCommitIdOfRepository(owner string, repo string) string {
 	}
 
 	r, err := git.PlainClone(repoDir, false, &git.CloneOptions{
-		URL:   "https://github.com/" + owner + "/" + repo,
-		Depth: 1,
+		URL:           "https://github.com/" + owner + "/" + repo,
+		Depth:         1,
+		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branch)),
+		SingleBranch:  true,
 	})
 	if err != nil {
 		panic(r)
@@ -59,13 +63,13 @@ func getLastCommitIdOfRepository(owner string, repo string) string {
 	return ref.Hash().String()
 }
 
-func checkIfUpdatable(owner string, repo string, saveDir string) bool {
+func checkIfUpdatable(owner string, repo string, branch string, saveDir string) bool {
 	savedLastCommitId, err := getSavedCommitId(saveDir)
 	if err != nil {
 		return true
 	}
 
-	remoteLastCommitId := getLastCommitIdOfRepository(owner, repo)
+	remoteLastCommitId := getLastCommitIdOfRepository(owner, repo, branch)
 	if savedLastCommitId != remoteLastCommitId {
 		return true
 	}
@@ -73,12 +77,14 @@ func checkIfUpdatable(owner string, repo string, saveDir string) bool {
 	return false
 }
 
-func doUpdate(owner string, repo string, saveDir string, fileFilter func(path string) bool) {
+func doUpdate(owner string, repo string, branch string, saveDir string, fileFilter func(path string) bool) {
 	fs := memfs.New()
 	r, err := git.Clone(memory.NewStorage(), fs, &git.CloneOptions{
-		URL:      "https://github.com/" + owner + "/" + repo,
-		Depth:    1,
-		Progress: os.Stdout,
+		URL:           "https://github.com/" + owner + "/" + repo,
+		Depth:         1,
+		Progress:      os.Stdout,
+		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branch)),
+		SingleBranch:  true,
 	})
 	if err != nil {
 		panic(err)
@@ -141,16 +147,18 @@ func main() {
 
 	dbOwner := os.Getenv("DATABASE_OWNER")
 	dbRepo := os.Getenv("DATABASE_REPO")
-	if checkIfUpdatable(dbOwner, dbRepo, "./zh-CN") {
-		doUpdate(dbOwner, dbRepo, "./zh-CN", func(path string) bool {
+	dbBranch := os.Getenv("DATABASE_BRANCH")
+	if checkIfUpdatable(dbOwner, dbRepo, dbBranch, "./zh-CN") {
+		doUpdate(dbOwner, dbRepo, dbBranch, "./zh-CN", func(path string) bool {
 			return strings.HasPrefix(path, "locales/zh-CN/")
 		})
 	}
 
 	defOwner := os.Getenv("DEFINITION_OWNER")
 	defRepo := os.Getenv("DEFINITION_REPO")
-	if checkIfUpdatable(defOwner, defRepo, "./ygopro-deck-identifier/Definitions/production") {
-		doUpdate(defOwner, defRepo, "./ygopro-deck-identifier/Definitions/production", func(path string) bool {
+	defBranch := os.Getenv("DEFINITION_BRANCH")
+	if checkIfUpdatable(defOwner, defRepo, defBranch, "./ygopro-deck-identifier/Definitions/production") {
+		doUpdate(defOwner, defRepo, defBranch, "./ygopro-deck-identifier/Definitions/production", func(path string) bool {
 			return strings.HasSuffix(path, ".deckdef")
 		})
 	}

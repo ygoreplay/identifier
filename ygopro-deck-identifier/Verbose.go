@@ -142,7 +142,7 @@ func (identifier *Identifier) verboseRecognizeDeck(deck *ygopro_data.Deck) *Verb
 	var result *Result = nil
 	var forceTags []Tag = nil
 	if correctDeckType != nil {
-		result = &Result{*correctDeckType, make([]Tag, 0)}
+		result = &Result{*correctDeckType, make([]Tag, 0), make([]Tag, 0)}
 		for _, tag := range correctDeckType.CheckTags {
 			answer := tag.verboseJudge(deck)
 			verboseCheckTags = append(verboseCheckTags, answer)

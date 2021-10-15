@@ -122,6 +122,7 @@ func (identifier *Identifier) polymerize(tags []Tag) *Result {
 	result.Deck = Deck{}
 	result.Deck.Name = buffer.String()
 	result.Tags = normalTags
+	result.DeckTags = upgradeTags
 	return result
 }
 

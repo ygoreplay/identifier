@@ -130,11 +130,18 @@ func (result *Result) ToJson() map[string]interface{} {
 		json["deck"] = Config.UnknownDeck
 	} else {
 		json["deck"] = result.Deck.Name
+
 		tags := make([]string, 0)
 		for _, tag := range result.Tags {
 			tags = append(tags, tag.Name)
 		}
 		json["tag"] = tags
+
+		deckTags := make([]string, 0)
+		for _, tag := range result.DeckTags {
+			deckTags = append(deckTags, tag.Name)
+		}
+		json["deckTag"] = deckTags
 	}
 	return json
 }

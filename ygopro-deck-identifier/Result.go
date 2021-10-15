@@ -1,8 +1,9 @@
 package ygopro_deck_identifier
 
 type Result struct {
-	Deck Deck
-	Tags []Tag
+	Deck     Deck
+	Tags     []Tag
+	DeckTags []Tag
 }
 
 func (result *Result) processAffixAndGetName(save bool) (name string) {

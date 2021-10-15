@@ -1,7 +1,7 @@
 {
   "DatabasePath": "",
   "DeckDefPath": "./ygopro-deck-identifier/Definitions",
-  "UnknownDeck": "迷之卡组",
+  "UnknownDeck": "알 수 없는 덱",
   "IdentifierNames": ["test", "production", "compile"],
   "Listening": ":3003",
   "AccessKey": "123456"

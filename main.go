@@ -8,6 +8,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/memory"
 	ygopro_data "github.com/iamipanda/ygopro-data"
+	"github.com/op/go-logging"
 	"github.com/robfig/cron"
 	ygopro_deck_identifier "identifier/ygopro-deck-identifier"
 	"io/ioutil"
@@ -78,6 +79,8 @@ func checkIfUpdatable(owner string, repo string, branch string, saveDir string) 
 	return false
 }
 
+var Logger = logging.MustGetLogger("standard")
+
 func doUpdate(owner string, repo string, branch string, saveDir string, fileFilter func(path string) bool) {
 	fs := memfs.New()
 	r, err := git.Clone(memory.NewStorage(), fs, &git.CloneOptions{
@@ -144,16 +147,21 @@ func doUpdate(owner string, repo string, branch string, saveDir string, fileFilt
 }
 
 func doUpdateEnvironment() {
+	Logger.Noticef("Check if there are updates for databases and definitions.")
+
 	updated := false
 
 	dbOwner := os.Getenv("DATABASE_OWNER")
 	dbRepo := os.Getenv("DATABASE_REPO")
 	dbBranch := os.Getenv("DATABASE_BRANCH")
 	if checkIfUpdatable(dbOwner, dbRepo, dbBranch, "./zh-CN") {
+		Logger.Noticef("Found updates for database.")
+
 		doUpdate(dbOwner, dbRepo, dbBranch, "./zh-CN", func(path string) bool {
 			return strings.HasPrefix(path, "locales/zh-CN/")
 		})
 
+		Logger.Noticef("Successfully installed updates for database.")
 		updated = true
 	}
 
@@ -161,16 +169,23 @@ func doUpdateEnvironment() {
 	defRepo := os.Getenv("DEFINITION_REPO")
 	defBranch := os.Getenv("DEFINITION_BRANCH")
 	if checkIfUpdatable(defOwner, defRepo, defBranch, "./ygopro-deck-identifier/Definitions/production") {
+		Logger.Noticef("Found updates for identifier definitions.")
+
 		doUpdate(defOwner, defRepo, defBranch, "./ygopro-deck-identifier/Definitions/production", func(path string) bool {
 			return strings.HasSuffix(path, ".deckdef")
 		})
 
+		Logger.Noticef("Successfully installed updates for identifier definitions.")
 		updated = true
 	}
 
 	if updated {
+		Logger.Noticef("Now apply updates to the identifier itself.")
+
 		ygopro_deck_identifier.ReloadDatabase()
 		ygopro_deck_identifier.ReloadIdentifier("production")
+
+		Logger.Noticef("Successfully applied to the identifier itself.")
 	}
 }
 

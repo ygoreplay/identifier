@@ -8,8 +8,8 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/memory"
 	ygopro_data "github.com/iamipanda/ygopro-data"
+	"github.com/jasonlvhit/gocron"
 	"github.com/op/go-logging"
-	"github.com/robfig/cron"
 	ygopro_deck_identifier "identifier/ygopro-deck-identifier"
 	"io/ioutil"
 	"os"
@@ -179,29 +179,31 @@ func doUpdateEnvironment() {
 		updated = true
 	}
 
-	if updated {
-		Logger.Noticef("Now apply updates to the identifier itself.")
+	if ygopro_deck_identifier.ApplicationInitialized {
+		if updated {
+			Logger.Noticef("Now apply updates to the identifier itself.")
 
-		ygopro_deck_identifier.ReloadDatabase()
-		ygopro_deck_identifier.ReloadIdentifier("production")
+			ygopro_deck_identifier.ReloadDatabase()
+			ygopro_deck_identifier.ReloadIdentifier("production")
 
-		Logger.Noticef("Successfully applied to the identifier itself.")
-	} else {
-		Logger.Noticef("There was no updates. Wait for next check ...")
+			Logger.Noticef("Successfully applied to the identifier itself.")
+		} else {
+			Logger.Noticef("There was no updates. Wait for next check ...")
+
+		}
 	}
 }
 
 func main() {
 	ygopro_data.LuaPath = filepath.Join(os.Getenv("GOPATH"), "pkg/mod/github.com/iamipanda/ygopro-data@v0.0.0-20190116110429-360968dc5c66/Constant.lua")
 
+	doUpdateEnvironment()
+	err := gocron.Every(2).Minutes().Do(doUpdateEnvironment)
+	if err != nil {
+		return
+	}
+
 	ygopro_deck_identifier.Initialize()
 	ygopro_deck_identifier.StartServer()
-
-	c := cron.New()
-	_ = c.AddFunc("* 1 * * * *", func() {
-		doUpdateEnvironment()
-	})
-
-	doUpdateEnvironment()
 
 }

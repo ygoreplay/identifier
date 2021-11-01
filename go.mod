@@ -9,6 +9,7 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/iamipanda/ygopro-data v0.0.0-20190116110429-360968dc5c66
 	github.com/itchio/lzma v0.0.0-20190703113020-d3e24e3e3d49 // indirect
+	github.com/jasonlvhit/gocron v0.0.1
 	github.com/kevinburke/ssh_config v1.1.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.8 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7

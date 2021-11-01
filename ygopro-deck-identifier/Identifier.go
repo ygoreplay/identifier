@@ -156,6 +156,7 @@ func (identifier *Identifier) searchNamedSet(name string) (ygopro_data.Set, bool
 // ================ Main Functions =================
 var Logger = logging.MustGetLogger("standard")
 var NormalLoggingBackend logging.Backend
+var ApplicationInitialized = false
 
 func Initialize() {
 	format := logging.MustStringFormatter(
@@ -176,4 +177,5 @@ func Initialize() {
 	environment.LoadAllCards()
 
 	RegisterIdentifiersAccordingToConfig()
+	ApplicationInitialized = true
 }

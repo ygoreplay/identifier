@@ -5,6 +5,16 @@ import (
 	ygopro_data "github.com/iamipanda/ygopro-data"
 )
 
+func ReloadDatabase() {
+	Logger.Info("Reloading database.")
+	ygopro_data.LoadAllEnvironmentCards()
+	ReloadAllIdentifier()
+}
+
+func ReloadIdentifier(name string) {
+	GlobalIdentifierMap[name].Reload()
+}
+
 func StartServer() {
 	router := gin.New()
 	router.Use(gin.Recovery())

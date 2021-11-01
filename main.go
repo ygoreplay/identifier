@@ -8,6 +8,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/memory"
 	ygopro_data "github.com/iamipanda/ygopro-data"
+	"github.com/robfig/cron"
 	ygopro_deck_identifier "identifier/ygopro-deck-identifier"
 	"io/ioutil"
 	"os"
@@ -142,8 +143,8 @@ func doUpdate(owner string, repo string, branch string, saveDir string, fileFilt
 	}
 }
 
-func main() {
-	ygopro_data.LuaPath = filepath.Join(os.Getenv("GOPATH"), "pkg/mod/github.com/iamipanda/ygopro-data@v0.0.0-20190116110429-360968dc5c66/Constant.lua")
+func doUpdateEnvironment() {
+	updated := false
 
 	dbOwner := os.Getenv("DATABASE_OWNER")
 	dbRepo := os.Getenv("DATABASE_REPO")
@@ -152,6 +153,8 @@ func main() {
 		doUpdate(dbOwner, dbRepo, dbBranch, "./zh-CN", func(path string) bool {
 			return strings.HasPrefix(path, "locales/zh-CN/")
 		})
+
+		updated = true
 	}
 
 	defOwner := os.Getenv("DEFINITION_OWNER")
@@ -161,7 +164,25 @@ func main() {
 		doUpdate(defOwner, defRepo, defBranch, "./ygopro-deck-identifier/Definitions/production", func(path string) bool {
 			return strings.HasSuffix(path, ".deckdef")
 		})
+
+		updated = true
 	}
+
+	if updated {
+		ygopro_deck_identifier.ReloadDatabase()
+		ygopro_deck_identifier.ReloadIdentifier("production")
+	}
+}
+
+func main() {
+	ygopro_data.LuaPath = filepath.Join(os.Getenv("GOPATH"), "pkg/mod/github.com/iamipanda/ygopro-data@v0.0.0-20190116110429-360968dc5c66/Constant.lua")
+
+	c := cron.New()
+	_ = c.AddFunc("* 1 * * * *", func() {
+		doUpdateEnvironment()
+	})
+
+	doUpdateEnvironment()
 
 	ygopro_deck_identifier.Initialize()
 	ygopro_deck_identifier.StartServer()

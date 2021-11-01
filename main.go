@@ -186,6 +186,8 @@ func doUpdateEnvironment() {
 		ygopro_deck_identifier.ReloadIdentifier("production")
 
 		Logger.Noticef("Successfully applied to the identifier itself.")
+	} else {
+		Logger.Noticef("There was no updates. Wait for next check ...")
 	}
 }
 
